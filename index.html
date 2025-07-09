@@ -3,26 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
-    <link rel="stylesheet" href="style-new.css?v=1">
+    <title>Janx's Text Based Adventure</title>
+    <link rel="stylesheet" href="style-new.css">
 </head>
 <body>
     <header>
         <nav>
             <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="play.html">Play Game</a></li>
+                <li><span style="font-weight: bold; letter-spacing: 1px;">JANX'S TEXT BASED ADVENTURE</span></li>
+                <li><span style="font-size: 0.8rem; color: #666; letter-spacing: 0.5px;">v. 0.0.1</span></li>
             </ul>
         </nav>
     </header>
     <main>
-        <h1 class="hidden">Millers Text Adventure</h1>
-        <p class="hidden">Step into the Miller-verse.</p>
+        <div class="game-container">
+            <div class="left-panel">
+                <div id="terminal">
+                    <div id="terminal-output"></div>
+                    <div class="terminal-input-line">
+                        <span class="prompt">></span>
+                        <input type="text" id="terminal-input" autofocus />
+                    </div>
+                </div>
+                <div id="fx-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 400px; pointer-events: none;"></div>
+                <div id="status-bars" class="horizontal-bars">
+                    <div class="status-bar">
+                        <label>❤️</label>
+                        <div class="bar-container">
+                            <div id="health-bar" class="bar"></div>
+                            <span id="health-text"></span>
+                        </div>
+                        <span class="tooltiptext">Health</span>
+                    </div>
+                    <div class="status-bar">
+                        <label>🍗</label>
+                        <div class="bar-container">
+                            <div id="hunger-bar" class="bar"></div>
+                            <span id="hunger-text"></span>
+                        </div>
+                        <span class="tooltiptext">Hunger</span>
+                    </div>
+                    <div class="status-bar">
+                        <label>💧</label>
+                        <div class="bar-container">
+                            <div id="thirst-bar" class="bar"></div>
+                            <span id="thirst-text"></span>
+                        </div>
+                        <span class="tooltiptext">Thirst</span>
+                    </div>
+                </div>
+                <div class="menus-row" style="display: flex; flex-direction: row; gap: 1rem; margin-top: 1rem;">
+                    <div id="body-parts-menu">
+                        <h3>Body Parts</h3>
+                        <ul id="body-parts-list"></ul>
+                    </div>
+                    <div id="stats-menu">
+                        <h3>Player Stats</h3>
+                        <ul id="stats-list">
+                            <li>XP: <span id="player-xp">0</span></li>
+                            <li>Level: <span id="player-level">01</span></li>
+                            <li>Next level: <span id="player-next-level-xp">0/100</span></li>
+                            <!-- Future stats can be added here -->
+                        </ul>
+                    </div>
+                    <div id="inventory-menu">
+                        <h3>Inventory</h3>
+                        <ul id="inventory-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <canvas id="map-canvas" width="400" height="400"></canvas>
+                <div id="compass-display" style="text-align:center; margin-bottom: 0.5rem; font-size: 1.2rem;">Facing: North</div>
+                <div id="time-display">Time: 08:00</div>
+                <div id="player-state-display">State: standing</div>
+                <div style="margin-top: 1rem;">
+                    <button id="save-btn">Save Game</button>
+                    <button id="load-btn">Load Game</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Save/Load Modal -->
+        <div id="save-load-modal">
+            <div>
+                <h3 id="modal-title">Save Game</h3>
+                <div id="save-section" style="display: none;">
+                    <p>Your save code has been copied to your clipboard!</p>
+                    <textarea id="save-code-display" readonly placeholder="Save code will appear here..."></textarea>
+                </div>
+                <div id="load-section" style="display: none;">
+                    <p>Paste your save code below:</p>
+                    <textarea id="load-code-input" placeholder="Paste your save code here..."></textarea>
+                    <button id="load-confirm-btn">Load Game</button>
+                </div>
+                <button id="close-modal-btn">Close</button>
+            </div>
+        </div>
     </main>
     <footer class="hidden">
         <p>&copy; 2025 My Website</p>
     </footer>
-    <script src="script.js"></script>
+    <script src="items.js"></script>
+    <script src="enemies.js"></script>
+    <script src="world.js"></script>
+    <script src="game-state.js"></script>
+    <script src="ui-manager.js"></script>
+    <script src="visual-effects.js"></script>
+    <script src="map-renderer.js"></script>
+    <script src="inventory-system.js"></script>
+    <script src="combat-system.js"></script>
+    <script src="command-processor.js"></script>
+    <script src="main.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Remove the menu toggle buttons and hidden-menu classes from the menus
+        });
+        </script>
+
 </body>
-</html>
+</html> 
