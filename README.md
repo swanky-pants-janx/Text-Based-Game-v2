@@ -1,142 +1,138 @@
-# Text Adventure Game - Modular Architecture
+# Text-Based Adventure Game v. 0.0.1
 
-This text adventure game has been refactored from a monolithic 1280-line script into a well-organized, modular architecture for better maintainability, readability, and extensibility.
+A challenging text-based survival adventure game where you explore a mysterious world, manage your resources, and fight for survival against dangerous enemies.
 
-## File Structure
+## 🎮 Game Overview
 
-### Core Game Files
-- **`play.html`** - Main game interface
-- **`style-new.css`** - Game styling
-- **`world.js`** - World data and room definitions
-- **`items.js`** - Item definitions and properties
-- **`enemies.js`** - Enemy definitions and stats
+You wake up in an unknown location with no memory of how you got there. Your body is in poor condition, and you're hungry and thirsty. You must explore the world around you, find resources, manage your health, and survive against various threats.
 
-### Modular JavaScript Architecture
+## 🎯 Core Gameplay Mechanics
 
-#### 1. **`game-state.js`** - Game State Management
-- Manages all player data (health, hunger, thirst, body parts)
-- Handles player location and movement
-- Manages inventory and equipped items
-- Controls game time and death mechanics
-- Provides utility methods for state changes
+### **Survival Management**
+- **Health System**: Your body has multiple parts (head, torso, arms, legs) each with their own health
+- **Hunger & Thirst**: Must eat and drink regularly to survive
+- **Body Part Damage**: Different body parts can be injured, affecting your abilities
+- **Death**: When any body part reaches 0 health, you die
 
-#### 2. **`ui-manager.js`** - User Interface Management
-- Handles all UI updates and display logic
-- Manages status bars, menus, and terminal output
-- Controls inventory and body parts displays
-- Handles death state UI changes
-- Provides centralized UI update methods
+### **Combat System**
+- **Turn-based Combat**: Strategic battles against various enemies
+- **Weapon System**: Find and equip weapons for different damage types
+- **Armor System**: Equip armor pieces that absorb damage and protect your body parts
+- **Armor Durability**: Armor takes damage and breaks when durability reaches zero
+- **Visual Combat Feedback**: Floating damage numbers and screen effects during combat
 
-#### 3. **`visual-effects.js`** - Visual Effects System
-- Manages all visual feedback and animations
-- Handles eating/drinking effects (crunch/glug)
-- Controls damage number displays
-- Manages terminal shake effects
-- Handles sleep transition effects
+### **Inventory & Equipment**
+- **Item Management**: Pick up, drop, and manage various items
+- **Equipment Slots**: Equip weapons and armor pieces
+- **Bulk Operations**: Take all items from rooms or drop multiple items at once
+- **Item Durability**: Equipment wears out with use
 
-#### 4. **`map-renderer.js`** - Map Rendering System
-- Handles all canvas-based map drawing
-- Manages viewport calculations and grid rendering
-- Controls devtool features (coordinates, exits, reveal)
-- Handles visited location highlighting
-- Provides map update methods
+### **Exploration**
+- **Grid-based World**: Navigate through a procedurally generated world
+- **Room Discovery**: Explore new areas and find resources
+- **Map System**: Visual representation of discovered areas
+- **Movement**: Use cardinal directions (north, south, east, west) to move
 
-#### 5. **`inventory-system.js`** - Inventory Management
-- Handles all item-related operations
-- Manages taking, dropping, and using items
-- Controls equipment system
-- Handles bulk operations (take all, drop all)
-- Provides item search and validation
+## 🛠️ Available Commands
 
-#### 6. **`combat-system.js`** - Combat Logic
-- Manages all combat-related functionality
-- Handles enemy creation and management
-- Controls damage calculations
-- Manages attack sequences
-- Handles enemy defeat and removal
+### **Movement**
+- `north`, `south`, `east`, `west` - Move in that direction
+- `look` - Examine your current location
 
-#### 7. **`command-processor.js`** - Command Processing
-- Central hub for all user command processing
-- Parses and routes commands to appropriate systems
-- Handles command validation and error messages
-- Coordinates between different game systems
-- Provides clean command interface
+### **Inventory & Items**
+- `take [item]` - Pick up a specific item
+- `take all` - Pick up all items in the room
+- `drop [item]` - Drop a specific item
+- `drop all` - Drop all items
+- `inventory` - View your inventory and equipped items
+- `equip [weapon]` - Equip a weapon
+- `equip armor [armor piece]` - Equip armor
+- `unequip [item]` - Remove equipped item
 
-#### 8. **`main.js`** - Game Initialization
-- Coordinates all game systems
-- Sets up event listeners
-- Initializes game state
-- Handles main game loop
-- Minimal, focused on orchestration
+### **Survival**
+- `eat [food]` - Consume food to reduce hunger
+- `drink [liquid]` - Drink to reduce thirst
+- `sleep` - Rest to recover health (if safe)
 
-## Benefits of This Architecture
+### **Combat**
+- `attack [enemy]` - Attack a specific enemy
+- `attack all` - Attack all enemies in the room
 
-### 1. **Separation of Concerns**
-- Each module has a single, well-defined responsibility
-- Changes to one system don't affect others
-- Clear boundaries between different game aspects
+### **Information**
+- `status` - Check your health, hunger, and thirst
+- `help` - Show available commands
 
-### 2. **Maintainability**
-- Easy to find and modify specific functionality
-- Reduced cognitive load when working on features
-- Clear dependencies between modules
+## 🆕 Recent Features
 
-### 3. **Readability**
-- Much easier to understand individual components
-- Self-documenting code structure
-- Logical organization of game features
+### **Enhanced Armor System**
+- **Damage Absorption**: Armor absorbs incoming damage before it reaches your body
+- **Durability System**: Armor pieces have durability that decreases with damage
+- **Breakage Mechanics**: When armor durability reaches zero, it breaks and must be unequipped
+- **Visual Feedback**: Special effects when armor takes damage or breaks
+- **Strategic Depth**: Choose when to use armor vs. when to preserve it
 
-### 4. **Extensibility**
-- Easy to add new features without affecting existing code
-- Clear interfaces between modules
-- Modular design supports future enhancements
+### **Improved Combat Visuals**
+- **Floating Damage Numbers**: Color-coded damage numbers appear during combat
+  - Red numbers (right side): Enemy damage
+  - Orange numbers (left side): Player damage  
+  - Light blue numbers (center): Armor damage
+- **Screen Effects**: Visual feedback when taking damage
+- **Spatial Separation**: Damage numbers are positioned to avoid overlap
 
-### 5. **Debugging**
-- Issues can be isolated to specific modules
-- Easier to test individual components
-- Clear error boundaries
+### **Developer Tools**
+- **Devtool Mode**: Access advanced debugging features
+- **Map Overlay**: Red dots show enemy locations on the map
+- **Armor Testing**: Special commands to test armor mechanics
+- **Status Monitoring**: Detailed information about game state
 
-### 6. **Performance**
-- Better code organization can lead to optimized loading
-- Easier to implement lazy loading if needed
-- Clearer memory management
+## 🎨 Technical Architecture
 
-## Module Dependencies
+The game uses a modular JavaScript architecture for maintainability and extensibility:
 
+### **Core Systems**
+- **Game State Management** (`game-state.js`) - Player data, location, inventory
+- **UI Management** (`ui-manager.js`) - Interface updates and displays
+- **Visual Effects** (`visual-effects.js`) - Combat animations and feedback
+- **Map Rendering** (`map-renderer.js`) - World visualization
+- **Inventory System** (`inventory-system.js`) - Item management
+- **Combat System** (`combat-system.js`) - Battle mechanics
+- **Command Processor** (`command-processor.js`) - Input handling
+
+### **Benefits**
+- **Modular Design**: Easy to add new features
+- **Maintainable Code**: Clear separation of concerns
+- **Extensible**: Simple to implement new mechanics
+- **Debug-Friendly**: Isolated systems for easier troubleshooting
+
+## 🚀 How to Play
+
+1. **Start the Game**: Open `play.html` in a web browser
+2. **Learn the Basics**: Type `help` to see available commands
+3. **Explore**: Use movement commands to discover the world
+4. **Survive**: Manage your health, hunger, and thirst
+5. **Fight**: Equip weapons and armor to defend yourself
+6. **Progress**: Find better equipment and explore deeper areas
+
+## 🎯 Game Tips
+
+- **Always check your status** - Monitor health, hunger, and thirst regularly
+- **Manage your inventory** - Don't carry unnecessary items
+- **Use armor strategically** - Save it for tough battles
+- **Explore thoroughly** - Check every room for resources
+- **Plan your fights** - Some enemies are tougher than others
+- **Rest when safe** - Sleep to recover health between adventures
+
+## 🔧 Running the Game
+
+### Local Development
+```bash
+python3 -m http.server 8000
 ```
-main.js
-├── game-state.js
-├── ui-manager.js (depends on game-state.js)
-├── visual-effects.js
-├── map-renderer.js (depends on game-state.js)
-├── inventory-system.js (depends on game-state.js, ui-manager.js)
-├── combat-system.js (depends on game-state.js, ui-manager.js, visual-effects.js)
-└── command-processor.js (depends on all other modules)
-```
+Then open `http://localhost:8000/play.html` in your browser.
 
-## Usage
+### Direct File
+Simply open `play.html` in any modern web browser.
 
-The game loads all modules in the correct order via script tags in `play.html`. The `main.js` file initializes all systems and coordinates their interactions.
+---
 
-## Migration from Monolithic Structure
-
-The original `script.js` (1280 lines) has been completely replaced by this modular structure. All functionality has been preserved while dramatically improving code organization and maintainability.
-
-## Future Enhancements
-
-This modular structure makes it easy to add:
-- New command types
-- Additional visual effects
-- More complex inventory systems
-- Enhanced combat mechanics
-- Save/load functionality
-- Multiplayer features
-- Plugin system for mods
-
-TO RUN GAME:
-
-Paste in terminal:
-  python3 -m http.server 8000
-
-Then in browser, post: http://localhost:8000/play.html# Text-Based-Game-v.2
-# Text-Based-Game-v2
+*Version 0.0.1 - A challenging survival adventure awaits!*
