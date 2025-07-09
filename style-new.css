@@ -1,0 +1,798 @@
+/* Minimalist Brutalist Redesign - v1.1 */
+body {
+    font-family: 'IBM Plex Mono', 'Roboto Mono', 'monospace', monospace;
+    margin: 0;
+    padding: 0;
+    background: #f8f8f8;
+    color: #111;
+    overflow-x: hidden;
+}
+
+header, footer {
+    background: #fff;
+    border-bottom: 2px solid #111;
+    border-top: 2px solid #111;
+    padding: 1rem 0;
+    text-align: center;
+    box-shadow: none;
+    animation: none;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 1rem;
+}
+
+nav a {
+    color: #111;
+    text-decoration: none;
+    font-size: 1.1rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid transparent;
+    border-radius: 0;
+    transition: border 0.1s, background 0.1s;
+    font-weight: 600;
+}
+
+nav a:hover {
+    background: #eee;
+    border: 2px solid #111;
+    color: #111;
+}
+
+main {
+    padding: 2rem;
+    text-align: center;
+}
+
+h1 {
+    color: #111;
+    letter-spacing: 1px;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.game-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex: 1 1 0;
+    min-width: 500px;
+    max-width: 800px;
+}
+
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 0;
+}
+
+#terminal {
+    margin-bottom: 0.5rem;
+    width: 100%;
+    min-width: 500px;
+    max-width: 800px;
+    box-sizing: border-box;
+    transition: opacity 2.5s;
+}
+
+#terminal {
+    background: #fff;
+    border: 2px solid #111;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1rem;
+    height: 400px;
+    overflow-y: auto;
+    font-family: 'IBM Plex Mono', 'Roboto Mono', 'monospace', monospace;
+    text-align: left;
+    color: #111;
+    transition: none;
+}
+
+#terminal:focus-within {
+    border: 2px solid #111;
+}
+
+#map-canvas {
+    display: block;
+    margin-top: 0;
+    border: 2px solid #111;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+    transition: none;
+}
+
+#compass-display {
+    color: #111;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    background: #fff;
+    border-bottom: 1px solid #111;
+    padding: 0.5rem 0;
+}
+
+#time-display {
+    color: #111;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    background: #fff;
+    border-bottom: 1px solid #111;
+    padding: 0.5rem 0;
+}
+
+#player-state-display {
+    color: #111;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: 400;
+    background: #fff;
+    border-bottom: 1px solid #111;
+    padding: 0.5rem 0;
+}
+
+#status-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: #111;
+}
+
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.status-bar .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background: #fff;
+    color: #111;
+    text-align: center;
+    border: 1px solid #111;
+    border-radius: 0;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.status-bar:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.bar-container {
+    width: 200px;
+    height: 20px;
+    background: #f8f8f8;
+    border: 2px solid #111;
+    border-radius: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.bar-container span[id$='-text'] {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+    color: #111;
+    font-size: 12px;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.bar {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #111;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: none;
+    border-radius: 0;
+    background: #eee;
+    transition: width 0.2s, background 0.1s;
+    z-index: 1;
+}
+
+#health-bar { background: #ffeded; }
+#hunger-bar { background: #f7f7d1; }
+#thirst-bar { background: #e6f7fa; }
+
+#terminal-output, .prompt { color: #111; }
+
+#terminal-input {
+    background: transparent;
+    border: none;
+    color: #111;
+    flex: 1;
+    font-family: 'IBM Plex Mono', 'Roboto Mono', 'monospace', monospace;
+    font-size: 1rem;
+    border-radius: 0;
+    padding: 0.2rem 0.5rem;
+    transition: none;
+}
+
+#terminal-input:focus {
+    outline: none;
+    background: #f8f8f8;
+    border-bottom: 2px solid #111;
+}
+
+#body-parts-btn, #inventory-btn, #stats-btn {
+    background: #fff;
+    color: #111;
+    border: 2px solid #111;
+    border-radius: 0;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.1s, color 0.1s, border 0.1s;
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+#body-parts-btn:hover, #inventory-btn:hover, #stats-btn:hover {
+    background: #eee;
+    color: #111;
+    border: 2px solid #111;
+}
+
+/* Save/Load Button Styling */
+#save-btn, #load-btn {
+    background: #fff;
+    border: 2px solid #111;
+    color: #111;
+    padding: 0.75rem 1.5rem;
+    font-family: 'IBM Plex Mono', 'Roboto Mono', 'monospace', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 0;
+    transition: background 0.1s, color 0.1s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0.25rem;
+}
+
+#save-btn:hover, #load-btn:hover {
+    background: #111;
+    color: #fff;
+}
+
+#save-btn:active, #load-btn:active {
+    background: #333;
+    color: #fff;
+}
+
+/* Modal Button Styling */
+#load-confirm-btn, #close-modal-btn {
+    background: #fff;
+    border: 2px solid #111;
+    color: #111;
+    padding: 0.75rem 1.5rem;
+    font-family: 'IBM Plex Mono', 'Roboto Mono', 'monospace', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 0;
+    transition: background 0.1s, color 0.1s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0.25rem;
+}
+
+#load-confirm-btn:hover, #close-modal-btn:hover {
+    background: #111;
+    color: #fff;
+}
+
+#load-confirm-btn:active, #close-modal-btn:active {
+    background: #333;
+    color: #fff;
+}
+
+/* Modal Styling */
+#save-load-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+}
+
+#save-load-modal > div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 2rem;
+    border: 2px solid #111;
+    border-radius: 0;
+    max-width: 600px;
+    width: 90%;
+    font-family: 'IBM Plex Mono', 'Roboto Mono', 'monospace', monospace;
+}
+
+#save-load-modal h3 {
+    color: #111;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#save-load-modal p {
+    color: #111;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+#save-code-display, #load-code-input {
+    width: 100%;
+    font-family: 'IBM Plex Mono', 'Roboto Mono', 'monospace', monospace;
+    font-size: 0.8rem;
+    border: 2px solid #111;
+    border-radius: 0;
+    padding: 0.75rem;
+    background: #fff;
+    color: #111;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+#save-code-display:focus, #load-code-input:focus {
+    outline: none;
+    border: 2px solid #111;
+    background: #f8f8f8;
+}
+
+#save-code-display {
+    height: 100px;
+    margin: 1rem 0;
+}
+
+#load-code-input {
+    height: 200px;
+    margin: 1rem 0;
+}
+
+#body-parts-menu, #inventory-menu, #stats-menu {
+    background: #fff;
+    border: 2px solid #111;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    min-width: 200px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+#body-parts-menu ul, #inventory-menu ul, #stats-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#body-parts-menu li, #stats-menu li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid #111;
+    font-size: 1rem;
+    color: #111;
+}
+
+#inventory-menu li {
+    display: block;
+    text-align: left;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid #111;
+    font-size: 1rem;
+    color: #111;
+}
+
+#body-parts-menu li:last-child, #inventory-menu li:last-child, #stats-menu li:last-child {
+    border-bottom: none;
+}
+
+/* Button group styling for consistency */
+.left-panel > div[style*="display: flex"] {
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    background: #f8f8f8;
+}
+::-webkit-scrollbar-thumb {
+    background: #eee;
+    border-radius: 0;
+}
+
+@media (max-width: 900px) {
+    .game-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #terminal {
+        width: 100%;
+        min-width: 0;
+    }
+    .right-panel {
+        width: 100%;
+    }
+}
+
+#status-bars.horizontal-bars {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin: 1.5rem 0 2rem 0;
+}
+
+#status-bars.horizontal-bars .status-bar {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    background: none;
+    box-shadow: none;
+}
+
+#status-bars.horizontal-bars .bar-container {
+    width: 120px;
+    height: 20px;
+    margin: 0 0.5rem;
+}
+
+.hidden-menu {
+    display: none !important;
+}
+
+@keyframes terminal-shake {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(var(--shake-x, 2px), var(--shake-y, 2px)); }
+  20% { transform: translate(calc(var(--shake-x, 2px) * -1), calc(var(--shake-y, 2px) * -1)); }
+  30% { transform: translate(var(--shake-x, 2px), var(--shake-y, 2px)); }
+  40% { transform: translate(calc(var(--shake-x, 2px) * -1), 0); }
+  50% { transform: translate(var(--shake-x, 2px), var(--shake-y, 2px)); }
+  60% { transform: translate(0, calc(var(--shake-y, 2px) * -1)); }
+  70% { transform: translate(var(--shake-x, 2px), 0); }
+  80% { transform: translate(0, var(--shake-y, 2px)); }
+  90% { transform: translate(calc(var(--shake-x, 2px) * -1), 0); }
+  100% { transform: translate(0, 0); }
+}
+
+.shake {
+  animation: terminal-shake 0.35s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+.glug-fx {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) rotate(var(--glug-rotate, 0deg));
+  font-size: 1.5rem;
+  font-family: inherit;
+  color: #0077b6;
+  font-weight: bold;
+  pointer-events: none;
+  opacity: 1;
+  animation: glug-float 2.2s cubic-bezier(.36,.07,.19,.97) forwards;
+  z-index: 1000;
+  --glug-x: 0px;
+  --glug-y: -180px;
+  --glug-rotate: 0deg;
+}
+
+@keyframes glug-float {
+  0% {
+    opacity: 1;
+    top: 60%;
+    transform: translateX(-50%) translate(0, 0) rotate(var(--glug-rotate, 0deg));
+  }
+  60% {
+    opacity: 1;
+    top: 30%;
+    transform: translateX(-50%) translate(calc(var(--glug-x) * 0.7), calc(var(--glug-y) * 0.7)) rotate(var(--glug-rotate, 0deg));
+  }
+  100% {
+    opacity: 0;
+    top: 0%;
+    transform: translateX(-50%) translate(var(--glug-x), var(--glug-y)) rotate(var(--glug-rotate, 0deg));
+  }
+}
+
+.crunch-fx {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) rotate(var(--crunch-rotate, 0deg));
+  font-size: 1.5rem;
+  font-family: inherit;
+  color: #a0522d;
+  font-weight: bold;
+  pointer-events: none;
+  opacity: 1;
+  animation: glug-float 2.2s cubic-bezier(.36,.07,.19,.97) forwards;
+  z-index: 1000;
+  --crunch-x: 0px;
+  --crunch-y: -180px;
+  --crunch-rotate: 0deg;
+}
+
+.damage-fx {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.7rem;
+  font-family: inherit;
+  color: #d32f2f;
+  font-weight: bold;
+  pointer-events: none;
+  opacity: 1;
+  animation: damage-float 1.3s cubic-bezier(.36,.07,.19,.97) forwards;
+  z-index: 1000;
+  --damage-x: 0px;
+  --damage-y: -120px;
+}
+
+@keyframes damage-float {
+  0% {
+    opacity: 1;
+    top: 60%;
+    transform: translateX(-50%) translate(0, 0);
+  }
+  70% {
+    opacity: 1;
+    top: 20%;
+    transform: translateX(-50%) translate(var(--damage-x), calc(var(--damage-y) * 0.7));
+  }
+  100% {
+    opacity: 0;
+    top: 0%;
+    transform: translateX(-50%) translate(var(--damage-x), var(--damage-y));
+  }
+}
+
+.player-damage-fx {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.7rem;
+  font-family: inherit;
+  color: #ff8f00;
+  font-weight: bold;
+  pointer-events: none;
+  opacity: 1;
+  animation: player-damage-float 1.3s cubic-bezier(.36,.07,.19,.97) forwards;
+  z-index: 1000;
+  --player-damage-x: 0px;
+  --player-damage-y: -120px;
+}
+
+@keyframes player-damage-float {
+  0% {
+    opacity: 1;
+    top: 60%;
+    transform: translateX(-50%) translate(0, 0);
+  }
+  70% {
+    opacity: 1;
+    top: 20%;
+    transform: translateX(-50%) translate(var(--player-damage-x), calc(var(--player-damage-y) * 0.7));
+  }
+  100% {
+    opacity: 0;
+    top: 0%;
+    transform: translateX(-50%) translate(var(--player-damage-x), var(--player-damage-y));
+  }
+}
+
+.armor-damage-fx {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.7rem;
+  font-family: inherit;
+  color: #64b5f6;
+  font-weight: bold;
+  pointer-events: none;
+  opacity: 1;
+  animation: armor-damage-float 1.3s cubic-bezier(.36,.07,.19,.97) forwards;
+  z-index: 1000;
+  --armor-damage-x: 0px;
+  --armor-damage-y: -120px;
+}
+
+@keyframes armor-damage-float {
+  0% {
+    opacity: 1;
+    top: 60%;
+    transform: translateX(-50%) translate(0, 0);
+  }
+  70% {
+    opacity: 1;
+    top: 20%;
+    transform: translateX(-50%) translate(var(--armor-damage-x), calc(var(--armor-damage-y) * 0.7));
+  }
+  100% {
+    opacity: 0;
+    top: 0%;
+    transform: translateX(-50%) translate(var(--armor-damage-x), var(--armor-damage-y));
+  }
+}
+
+.sleep-fx {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.7rem;
+  font-family: inherit;
+  color: #888;
+  font-weight: bold;
+  pointer-events: none;
+  opacity: 1;
+  animation: sleep-float 3.5s cubic-bezier(.36,.07,.19,.97) forwards;
+  z-index: 1000;
+}
+
+@keyframes sleep-float {
+  0% {
+    opacity: 1;
+    top: 0%;
+    transform: translateX(-50%) translate(0, 0);
+  }
+  80% {
+    opacity: 1;
+    top: 80%;
+    transform: translateX(-50%) translate(0, 120px);
+  }
+  100% {
+    opacity: 0;
+    top: 100%;
+    transform: translateX(-50%) translate(0, 180px);
+  }
+}
+
+.terminal-fade {
+  opacity: 0;
+}
+
+body.darkmode {
+    background: #181a1b;
+    color: #e0e0e0;
+}
+
+body.darkmode header, body.darkmode footer {
+    background: #232526;
+    border-bottom: 2px solid #333;
+    border-top: 2px solid #333;
+    color: #e0e0e0;
+}
+
+body.darkmode nav a {
+    color: #e0e0e0;
+    background: #232526;
+    border-color: #333;
+}
+
+body.darkmode nav a:hover {
+    background: #333;
+    border: 2px solid #e0e0e0;
+    color: #fff;
+}
+
+body.darkmode main {
+    background: #232526;
+    color: #e0e0e0;
+}
+
+body.darkmode #terminal,
+body.darkmode #terminal-output,
+body.darkmode .prompt {
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+body.darkmode #terminal {
+    background: #232526 !important;
+    border: 2px solid #444 !important;
+}
+
+body.darkmode #map-canvas {
+    background: #232526 !important;
+    border: 2px solid #444 !important;
+}
+
+body.darkmode #compass-display,
+body.darkmode #time-display,
+body.darkmode #player-state-display {
+    color: #e0e0e0 !important;
+    background: #232526 !important;
+    border-bottom: 1px solid #444 !important;
+}
+
+body.darkmode .status-bar,
+body.darkmode .bar-container {
+    background: #232526 !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+body.darkmode .bar {
+    background: #444 !important;
+}
+
+body.darkmode #body-parts-menu,
+body.darkmode #inventory-menu,
+body.darkmode #stats-menu {
+    background: #232526 !important;
+    border: 2px solid #444 !important;
+    color: #e0e0e0 !important;
+}
+
+body.darkmode #body-parts-menu ul,
+body.darkmode #inventory-menu ul,
+body.darkmode #stats-menu ul {
+    color: #e0e0e0 !important;
+}
+
+body.darkmode #body-parts-menu li,
+body.darkmode #inventory-menu li,
+body.darkmode #stats-menu li {
+    color: #e0e0e0 !important;
+    border-bottom: 1px solid #444 !important;
+}
+
+body.darkmode .tooltiptext {
+    color: #bbb !important;
+    background: #232526 !important;
+    border: 1px solid #444 !important;
+}
