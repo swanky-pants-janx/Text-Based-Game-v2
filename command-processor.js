@@ -11,9 +11,20 @@ class CommandProcessor {
 
     processCommand(commandText) {
         this.uiManager.printToTerminal(commandText, true);
-        const input = commandText.toLowerCase().trim().split(' ');
-        const command = input[0];
-        const argument = input.slice(1).join(' ');
+        const lowerText = commandText.toLowerCase().trim();
+        // Check for multi-word commands first
+        let command, argument;
+        if (lowerText.startsWith('look up')) {
+            command = 'look up';
+            argument = lowerText.slice('look up'.length).trim();
+        } else if (lowerText.startsWith('devtool weather')) {
+            command = 'devtool';
+            argument = lowerText.slice('devtool'.length).trim();
+        } else {
+            const input = lowerText.split(' ');
+            command = input[0];
+            argument = input.slice(1).join(' ');
+        }
 
         let response = '';
 
@@ -27,7 +38,7 @@ class CommandProcessor {
                 response = 'Light mode enabled.';
                 break;
             case 'help':
-                response = 'Available commands: help, clear, look, look up, move/walk/go [direction], sleep [hh:mm], devtool [enabled|disabled|damage|xp|weather], sit, stand, lay, eat [item], drink [item], take [item/all/x and x and x], drop [item/all/x and x and x], attack [target], equip [weapon/armor], unequip [weapon], armor [status|equip|unequip], save, load';
+                response = 'Available commands: help, clear, look, look up, move/walk/go [direction], sleep [hh:mm], devtool [enabled|disabled|damage|xp|weather], sit, stand, lay, eat [item], drink [item], take [item/all/x and x and x], drop [item/all/x and x and x], attack [target], equip [weapon/armor], unequip [weapon], armor [equip|unequip], save, load';
                 break;
 
             case 'sleep':
@@ -262,8 +273,6 @@ class CommandProcessor {
                 return `Devtool: ${damageResult.part} damaged for ${damageResult.amount} points.`;
             case 'testarmor':
                 return this.handleDevtoolTestArmor();
-            case 'armorstatus':
-                return this.handleDevtoolArmorStatus();
             case 'xp':
                 this.gameState.gainXP(50);
                 this.uiManager.updateStatsMenu && this.uiManager.updateStatsMenu();
@@ -271,7 +280,7 @@ class CommandProcessor {
             case 'weather':
                 return 'Usage: devtool weather [clear|light|normal|heavy|storm]';
             default:
-                return 'Usage: devtool [enabled|disabled|damage|testarmor|armorstatus|xp|weather|give <item name>]';
+                return 'Usage: devtool [enabled|disabled|damage|testarmor|xp|weather|give <item name>]';
         }
     }
 
@@ -315,21 +324,6 @@ class CommandProcessor {
         } else {
             return `Devtool: You already have test armor. Equip it and use 'devtool damage' to test.`;
         }
-    }
-
-    handleDevtoolArmorStatus() {
-        const status = this.gameState.getDetailedArmorStatus();
-        let output = 'Devtool: Detailed Armor Status:\n';
-        
-        Object.entries(status).forEach(([slot, armor]) => {
-            if (armor) {
-                output += `${slot}: ${armor.name} (${armor.durability}/${armor.maxDurability} - ${armor.percentage}%)\n`;
-            } else {
-                output += `${slot}: None\n`;
-            }
-        });
-        
-        return output.trim();
     }
 
     handleDevtoolWeather(weatherType) {
@@ -659,15 +653,13 @@ class CommandProcessor {
 
     handleArmor(argument) {
         if (!argument) {
-            return this.getArmorStatus();
+            return 'Use "armor equip [armor name]" or "armor unequip [slot]".';
         }
 
         const args = argument.toLowerCase().split(' ');
         const command = args[0];
 
         switch (command) {
-            case 'status':
-                return this.getArmorStatus();
             case 'equip':
                 if (args.length < 2) {
                     return 'Usage: armor equip [armor name]';
@@ -681,33 +673,8 @@ class CommandProcessor {
                 const slot = args[1];
                 return this.unequipArmor(slot);
             default:
-                return 'Usage: armor [status|equip|unequip]';
+                return 'Usage: armor [equip|unequip]';
         }
-    }
-
-    getArmorStatus() {
-        const equippedArmor = this.gameState.equippedArmor;
-        let status = 'Armor Status:\n';
-        
-        const slots = ['head_armor', 'torso_armor', 'leggings'];
-        const slotNames = {
-            'head_armor': 'Head',
-            'torso_armor': 'Torso', 
-            'leggings': 'Legs'
-        };
-
-        slots.forEach(slot => {
-            const armor = equippedArmor[slot];
-            if (armor) {
-                const item = items[armor.itemKey];
-                const durabilityPercent = Math.round((armor.currentDurability / armor.maxDurability) * 100);
-                status += `${slotNames[slot]}: ${item.name} (${armor.currentDurability}/${armor.maxDurability} - ${durabilityPercent}%)\n`;
-            } else {
-                status += `${slotNames[slot]}: None\n`;
-            }
-        });
-
-        return status.trim();
     }
 
     equipArmor(itemName) {
@@ -731,7 +698,7 @@ class CommandProcessor {
             // Remove from inventory since it's now equipped
             this.gameState.removeFromInventory(itemKey, 1);
             this.uiManager.updateInventoryMenu();
-            return `${result.message} Use 'armor status' to see your equipped armor.`;
+            return result.message;
         } else {
             return result.message;
         }

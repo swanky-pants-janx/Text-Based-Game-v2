@@ -48,6 +48,7 @@ class GameState {
             intensity: 'none', // 'none', 'light', 'normal', 'heavy', 'storm'
             initialized: false
         };
+        this.nextWeatherChangeTime = 60 + Math.floor(Math.random() * 60); // First change 1-2 hours after start
 
         this.directionAliases = {
             'n': 'north', 'north': 'north', 'forward': 'north',
@@ -61,6 +62,7 @@ class GameState {
 
     advanceTime(minutes) {
         this.gameTime.setMinutes(this.gameTime.getMinutes() + minutes);
+        this.checkWeatherChange(minutes);
     }
 
     getTimeString() {
@@ -154,10 +156,8 @@ class GameState {
     // Weather system methods
     initializeWeather() {
         if (this.weather.initialized) return;
-        
         // 15% chance of rain at game start
         this.weather.isRaining = Math.random() < 0.15;
-        
         if (this.weather.isRaining) {
             // Random intensity distribution
             const intensityRoll = Math.random();
@@ -173,14 +173,35 @@ class GameState {
         } else {
             this.weather.intensity = 'none';
         }
-        
         this.weather.initialized = true;
+        // Set first weather change
+        let minDur, maxDur;
+        switch (this.weather.intensity) {
+            case 'storm': minDur = 90; maxDur = 180; break;
+            case 'heavy': minDur = 60; maxDur = 120; break;
+            case 'normal': minDur = 40; maxDur = 90; break;
+            case 'light': minDur = 30; maxDur = 60; break;
+            default: minDur = 40; maxDur = 120; break; // clear
+        }
+        const currentMinutes = this.gameTime.getHours() * 60 + this.gameTime.getMinutes();
+        this.nextWeatherChangeTime = currentMinutes + minDur + Math.floor(Math.random() * (maxDur - minDur + 1));
     }
 
     setWeather(isRaining, intensity = 'normal') {
         this.weather.isRaining = isRaining;
         this.weather.intensity = isRaining ? intensity : 'none';
         this.weather.initialized = true;
+        // Reset next weather change timer based on new weather
+        let minDur, maxDur;
+        switch (this.weather.intensity) {
+            case 'storm': minDur = 90; maxDur = 180; break;
+            case 'heavy': minDur = 60; maxDur = 120; break;
+            case 'normal': minDur = 40; maxDur = 90; break;
+            case 'light': minDur = 30; maxDur = 60; break;
+            default: minDur = 40; maxDur = 120; break; // clear
+        }
+        const currentMinutes = this.gameTime.getHours() * 60 + this.gameTime.getMinutes();
+        this.nextWeatherChangeTime = currentMinutes + minDur + Math.floor(Math.random() * (maxDur - minDur + 1));
     }
 
     getWeatherStatus() {
@@ -214,6 +235,87 @@ class GameState {
             this.initializeWeather();
         }
         return this.weather.intensity;
+    }
+
+    // Call this after sleep as well, passing total minutes slept
+    checkWeatherChange(minutesAdvanced) {
+        // Convert current time to total minutes since midnight
+        const currentMinutes = this.gameTime.getHours() * 60 + this.gameTime.getMinutes();
+        let changes = 0;
+        while (currentMinutes >= this.nextWeatherChangeTime) {
+            this.rollWeather();
+            changes++;
+            // Set next change time based on new weather
+            let minDur, maxDur;
+            switch (this.weather.intensity) {
+                case 'storm': minDur = 90; maxDur = 180; break;
+                case 'heavy': minDur = 60; maxDur = 120; break;
+                case 'normal': minDur = 40; maxDur = 90; break;
+                case 'light': minDur = 30; maxDur = 60; break;
+                default: minDur = 40; maxDur = 120; break; // clear
+            }
+            this.nextWeatherChangeTime += minDur + Math.floor(Math.random() * (maxDur - minDur + 1));
+        }
+        if (changes > 0 && window.uiManager) {
+            window.uiManager.printToTerminal(this.getWeatherDescription());
+            if (window.visualEffects) {
+                if (this.weather.isRaining) {
+                    window.visualEffects.startRainEffect(this.weather.intensity);
+                } else {
+                    window.visualEffects.stopRainEffect();
+                }
+            }
+        }
+    }
+
+    rollWeather() {
+        // Weighted transitions based on current weather
+        const current = this.weather.intensity;
+        let next;
+        if (current === 'none') {
+            // Clear: 80% stay clear, 10% light, 6% normal, 3% heavy, 1% storm
+            const r = Math.random();
+            if (r < 0.8) next = 'none';
+            else if (r < 0.9) next = 'light';
+            else if (r < 0.96) next = 'normal';
+            else if (r < 0.99) next = 'heavy';
+            else next = 'storm';
+        } else if (current === 'light') {
+            // Light: 60% clear, 20% light, 15% normal, 4% heavy, 1% storm
+            const r = Math.random();
+            if (r < 0.6) next = 'none';
+            else if (r < 0.8) next = 'light';
+            else if (r < 0.95) next = 'normal';
+            else if (r < 0.99) next = 'heavy';
+            else next = 'storm';
+        } else if (current === 'normal') {
+            // Normal: 40% clear, 20% light, 25% normal, 10% heavy, 5% storm
+            const r = Math.random();
+            if (r < 0.4) next = 'none';
+            else if (r < 0.6) next = 'light';
+            else if (r < 0.85) next = 'normal';
+            else if (r < 0.95) next = 'heavy';
+            else next = 'storm';
+        } else if (current === 'heavy') {
+            // Heavy: 30% clear, 10% light, 20% normal, 30% heavy, 10% storm
+            const r = Math.random();
+            if (r < 0.3) next = 'none';
+            else if (r < 0.4) next = 'light';
+            else if (r < 0.6) next = 'normal';
+            else if (r < 0.9) next = 'heavy';
+            else next = 'storm';
+        } else if (current === 'storm') {
+            // Storm: 10% clear, 10% light, 20% normal, 30% heavy, 30% storm
+            const r = Math.random();
+            if (r < 0.1) next = 'none';
+            else if (r < 0.2) next = 'light';
+            else if (r < 0.4) next = 'normal';
+            else if (r < 0.7) next = 'heavy';
+            else next = 'storm';
+        }
+        this.weather.isRaining = next !== 'none';
+        this.weather.intensity = next;
+        this.weather.initialized = true;
     }
 
     // Armor management methods

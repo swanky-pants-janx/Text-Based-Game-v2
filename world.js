@@ -3,26 +3,26 @@
 const roomTemplates = [
     {
         key: 'start',
-        name: 'Starting Room',
-        description: 'You are in a dimly lit room.',
+        name: 'Forest Clearing',
+        description: 'You are in a small clearing surrounded by tall, ancient trees. Sunlight barely pierces the canopy above.',
         objects: ['old lamp'],
     },
     {
         key: 'upper road',
-        name: 'Upper Road',
-        description: 'You are on an upper road. The wind is cold.',
+        name: 'Overgrown Path',
+        description: 'You are on an overgrown path. The wind rustles through the leaves.',
         objects: ['signpost'],
     },
     {
         key: 'hallway',
-        name: 'Hallway',
-        description: 'You are in a long hallway.',
+        name: 'Narrow Ravine',
+        description: 'You are in a narrow ravine, its walls covered in moss and ferns.',
         objects: ['painting'],
     },
     {
         key: 'kitchen',
-        name: 'Kitchen',
-        description: 'You are in a kitchen. It smells of stale bread.',
+        name: 'Crumbling Campsite',
+        description: 'You find the remains of an old campsite. Ashes and broken utensils are scattered about.',
         objects: ['table', 'cabinet'],
     },
     {
