@@ -14,6 +14,13 @@ You wake up in an unknown location with no memory of how you got there. Your bod
 - **Body Part Damage**: Different body parts can be injured, affecting your abilities
 - **Death**: When any body part reaches 0 health, you die
 
+### **Weather & Rain System**
+- **Dynamic Weather**: The world can have clear skies or rain, with a chance of rain at the start of each game
+- **Rain Intensities**: Rain can be light, normal, heavy, or a storm, each with unique visual and gameplay effects
+- **Visual Rain Effects**: Animated rain droplets fall in the terminal, with color and speed based on intensity
+- **Terminal Rumble**: The terminal shakes continuously during rain, with intensity matching the rain (gentle for normal, strong for heavy, intense for storms)
+- **Weather Commands**: Use `look up` to check the sky, and `devtool weather [clear|light|normal|heavy|storm]` to set the weather
+
 ### **Combat System**
 - **Turn-based Combat**: Strategic battles against various enemies
 - **Weapon System**: Find and equip weapons for different damage types
@@ -38,6 +45,7 @@ You wake up in an unknown location with no memory of how you got there. Your bod
 ### **Movement**
 - `north`, `south`, `east`, `west` - Move in that direction
 - `look` - Examine your current location
+- `look up` - Check the sky and current weather
 
 ### **Inventory & Items**
 - `take [item]` - Pick up a specific item
@@ -63,6 +71,12 @@ You wake up in an unknown location with no memory of how you got there. Your bod
 - `help` - Show available commands
 
 ## 🆕 Recent Features
+
+### **Weather & Rain Effects**
+- **Dynamic Weather**: The game world can now have clear skies or rain, with a random chance of rain at the start of each game
+- **Rain Intensities**: Rain can be light, normal, heavy, or a storm, each with unique droplet color, speed, and terminal rumble
+- **Continuous Terminal Rumble**: The terminal shakes continuously during rain, with intensity matching the rain
+- **Weather Commands**: Use `look up` to check the sky, and `devtool weather [clear|light|normal|heavy|storm]` to set the weather instantly
 
 ### **Enhanced Armor System**
 - **Damage Absorption**: Armor absorbs incoming damage before it reaches your body
@@ -90,9 +104,9 @@ You wake up in an unknown location with no memory of how you got there. Your bod
 The game uses a modular JavaScript architecture for maintainability and extensibility:
 
 ### **Core Systems**
-- **Game State Management** (`game-state.js`) - Player data, location, inventory
+- **Game State Management** (`game-state.js`) - Player data, location, inventory, weather
 - **UI Management** (`ui-manager.js`) - Interface updates and displays
-- **Visual Effects** (`visual-effects.js`) - Combat animations and feedback
+- **Visual Effects** (`visual-effects.js`) - Combat animations, rain, and feedback
 - **Map Rendering** (`map-renderer.js`) - World visualization
 - **Inventory System** (`inventory-system.js`) - Item management
 - **Combat System** (`combat-system.js`) - Battle mechanics
@@ -106,7 +120,7 @@ The game uses a modular JavaScript architecture for maintainability and extensib
 
 ## 🚀 How to Play
 
-1. **Start the Game**: Open `play.html` in a web browser
+1. **Start the Game**: Open `index.html` in a web browser
 2. **Learn the Basics**: Type `help` to see available commands
 3. **Explore**: Use movement commands to discover the world
 4. **Survive**: Manage your health, hunger, and thirst
@@ -121,6 +135,7 @@ The game uses a modular JavaScript architecture for maintainability and extensib
 - **Explore thoroughly** - Check every room for resources
 - **Plan your fights** - Some enemies are tougher than others
 - **Rest when safe** - Sleep to recover health between adventures
+- **Check the weather** - Rain can affect the atmosphere and immersion!
 
 ## 🔧 Running the Game
 
@@ -128,11 +143,11 @@ The game uses a modular JavaScript architecture for maintainability and extensib
 ```bash
 python3 -m http.server 8000
 ```
-Then open `http://localhost:8000/play.html` in your browser.
+Then open `http://localhost:8000/index.html` in your browser.
 
 ### Direct File
-Simply open `play.html` in any modern web browser.
+Simply open `index.html` in any modern web browser.
 
 ---
 
-*Version 0.0.1 - A challenging survival adventure awaits!*
+*Version 0.0.1 - A challenging survival adventure awaits! Weather the storm!*

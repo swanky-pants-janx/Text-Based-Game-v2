@@ -61,9 +61,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Initialize weather system
+    gameState.initializeWeather();
+    
+    // Start rain effect if it's raining
+    if (gameState.weather.isRaining) {
+        visualEffects.startRainEffect(gameState.getRainIntensity());
+    }
+    
     // Initialize game display
     uiManager.printToTerminal("Welcome to the Adventure Game! Type 'help' for commands.");
     uiManager.printToTerminal(world[gameState.playerLocation].description);
+    
+    // Show weather status at game start
+    uiManager.printToTerminal(gameState.getWeatherDescription());
+    
     mapRenderer.drawMap();
     uiManager.updateAllDisplays();
     uiManager.updateStatsMenu && uiManager.updateStatsMenu();
@@ -114,7 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 inventory: gameState.inventory,
                 playerStats: gameState.playerStats,
                 xp: gameState.xp,
-                level: gameState.level
+                level: gameState.level,
+                weather: gameState.weather
             };
             
             const saveData = {
@@ -170,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameState.playerStats = data.playerStats;
             gameState.xp = data.xp;
             gameState.level = data.level;
+            gameState.weather = data.weather || { isRaining: false, initialized: false };
             window.world = saveData.world;
             console.log('Modal load - Restored world state:', window.world);
             console.log('Modal load - Current player location after load:', gameState.playerLocation);
@@ -178,6 +192,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Reinitialize enemies after loading
             combatSystem.reinitializeEnemiesAfterLoad();
+            
+            // Restore weather effects
+            if (gameState.weather.isRaining) {
+                visualEffects.startRainEffect(gameState.getRainIntensity());
+            } else {
+                visualEffects.stopRainEffect();
+            }
             
             uiManager.printToTerminal('Game loaded successfully!');
             uiManager.updateAllDisplays && uiManager.updateAllDisplays();

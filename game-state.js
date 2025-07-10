@@ -42,6 +42,13 @@ class GameState {
         this.xp = 0;
         this.level = 1;
 
+        // Weather system
+        this.weather = {
+            isRaining: false,
+            intensity: 'none', // 'none', 'light', 'normal', 'heavy', 'storm'
+            initialized: false
+        };
+
         this.directionAliases = {
             'n': 'north', 'north': 'north', 'forward': 'north',
             's': 'south', 'south': 'south', 'back': 'south',
@@ -142,6 +149,71 @@ class GameState {
 
     getNextLevelProgress() {
         return `${this.xp}/${this.getXPForNextLevel()}`;
+    }
+
+    // Weather system methods
+    initializeWeather() {
+        if (this.weather.initialized) return;
+        
+        // 15% chance of rain at game start
+        this.weather.isRaining = Math.random() < 0.15;
+        
+        if (this.weather.isRaining) {
+            // Random intensity distribution
+            const intensityRoll = Math.random();
+            if (intensityRoll < 0.4) {
+                this.weather.intensity = 'light';
+            } else if (intensityRoll < 0.7) {
+                this.weather.intensity = 'normal';
+            } else if (intensityRoll < 0.9) {
+                this.weather.intensity = 'heavy';
+            } else {
+                this.weather.intensity = 'storm';
+            }
+        } else {
+            this.weather.intensity = 'none';
+        }
+        
+        this.weather.initialized = true;
+    }
+
+    setWeather(isRaining, intensity = 'normal') {
+        this.weather.isRaining = isRaining;
+        this.weather.intensity = isRaining ? intensity : 'none';
+        this.weather.initialized = true;
+    }
+
+    getWeatherStatus() {
+        if (!this.weather.initialized) {
+            this.initializeWeather();
+        }
+        return this.weather.isRaining ? 'raining' : 'clear';
+    }
+
+    getWeatherDescription() {
+        if (!this.weather.initialized) {
+            this.initializeWeather();
+        }
+        
+        if (!this.weather.isRaining) {
+            return "The skies are currently clear.";
+        }
+        
+        const intensityDescriptions = {
+            'light': "It's currently drizzling lightly.",
+            'normal': "It's currently raining.",
+            'heavy': "It's currently raining heavily.",
+            'storm': "A storm is raging overhead!"
+        };
+        
+        return intensityDescriptions[this.weather.intensity] || "It's currently raining.";
+    }
+
+    getRainIntensity() {
+        if (!this.weather.initialized) {
+            this.initializeWeather();
+        }
+        return this.weather.intensity;
     }
 
     // Armor management methods

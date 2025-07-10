@@ -195,6 +195,168 @@ class VisualEffects {
         setTimeout(() => this.terminal.classList.remove('shake'), 400);
     }
 
+    startRainEffect(intensity = 'normal') {
+        if (!this.terminal) return;
+        
+        // Clear any existing rain
+        this.stopRainEffect();
+        
+        // Create rain container
+        this.rainContainer = document.createElement('div');
+        this.rainContainer.className = 'rain-container';
+        this.rainContainer.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 10;
+        `;
+        
+        this.terminal.style.position = 'relative';
+        this.terminal.appendChild(this.rainContainer);
+        
+        // Set rain intensity parameters
+        this.currentRainIntensity = intensity;
+        
+        // Create rain drops
+        this.createRainDrops();
+        
+        // Continue creating new drops periodically based on intensity
+        const intervalMap = {
+            'light': 300,    // Slower for light rain
+            'normal': 200,   // Standard speed
+            'heavy': 150,    // Faster for heavy rain
+            'storm': 100     // Very fast for storm
+        };
+        
+        this.rainInterval = setInterval(() => {
+            this.createRainDrops();
+        }, intervalMap[intensity] || 200);
+        
+        // Start terminal rumble based on intensity
+        this.startRainRumble(intensity);
+    }
+
+    stopRainEffect() {
+        if (this.rainContainer) {
+            this.rainContainer.remove();
+            this.rainContainer = null;
+        }
+        if (this.rainInterval) {
+            clearInterval(this.rainInterval);
+            this.rainInterval = null;
+        }
+        // Stop rain rumble
+        this.stopRainRumble();
+    }
+
+    startRainRumble(intensity) {
+        if (!this.terminal) return;
+        
+        // Clear any existing rumble
+        this.stopRainRumble();
+        
+        const rumbleParams = {
+            'light': { enabled: false, intensity: 0, interval: 0 },
+            'normal': { enabled: true, intensity: 0.5, interval: 150 },
+            'heavy': { enabled: true, intensity: 1.0, interval: 100 },
+            'storm': { enabled: true, intensity: 2.0, interval: 75 }
+        };
+        
+        const params = rumbleParams[intensity] || rumbleParams['normal'];
+        
+        if (!params.enabled) return;
+        
+        // Start continuous rumble
+        this.rainRumbleInterval = setInterval(() => {
+            // Randomize the shake direction slightly for more natural feel
+            const shakeX = params.intensity + (Math.random() - 0.5) * 0.5;
+            const shakeY = params.intensity + (Math.random() - 0.5) * 0.5;
+            
+            this.terminal.style.setProperty('--shake-x', shakeX + 'px');
+            this.terminal.style.setProperty('--shake-y', shakeY + 'px');
+            this.terminal.classList.remove('shake');
+            void this.terminal.offsetWidth;
+            this.terminal.classList.add('shake');
+        }, params.interval);
+    }
+
+    stopRainRumble() {
+        if (this.rainRumbleInterval) {
+            clearInterval(this.rainRumbleInterval);
+            this.rainRumbleInterval = null;
+        }
+        if (this.terminal) {
+            this.terminal.classList.remove('shake');
+        }
+    }
+
+    createRainDrops() {
+        if (!this.rainContainer) return;
+        
+        // Rain intensity parameters
+        const intensityParams = {
+            'light': {
+                dropCount: 2 + Math.floor(Math.random() * 2), // 2-3 drops
+                width: 1,
+                height: 6,
+                color: 'rgba(150, 200, 255, 0.4)', // Light blue
+                fallTime: 2.0
+            },
+            'normal': {
+                dropCount: 3 + Math.floor(Math.random() * 3), // 3-5 drops
+                width: 1,
+                height: 8,
+                color: 'rgba(100, 150, 255, 0.6)', // Medium blue
+                fallTime: 1.5
+            },
+            'heavy': {
+                dropCount: 5 + Math.floor(Math.random() * 4), // 5-8 drops
+                width: 1.5,
+                height: 10,
+                color: 'rgba(70, 120, 200, 0.7)', // Darker blue
+                fallTime: 1.2
+            },
+            'storm': {
+                dropCount: 8 + Math.floor(Math.random() * 5), // 8-12 drops
+                width: 2,
+                height: 12,
+                color: 'rgba(40, 80, 150, 0.8)', // Very dark blue
+                fallTime: 1.0
+            }
+        };
+        
+        const params = intensityParams[this.currentRainIntensity] || intensityParams['normal'];
+        
+        for (let i = 0; i < params.dropCount; i++) {
+            const drop = document.createElement('div');
+            drop.className = 'rain-drop';
+            drop.style.cssText = `
+                position: absolute;
+                width: ${params.width}px;
+                height: ${params.height}px;
+                background: linear-gradient(to bottom, ${params.color}, ${params.color.replace('0.8', '0.4').replace('0.7', '0.3').replace('0.6', '0.2').replace('0.4', '0.1')});
+                border-radius: ${params.width}px;
+                left: ${Math.random() * 100}%;
+                top: -${params.height + 2}px;
+                animation: rain-fall ${params.fallTime}s linear forwards;
+                pointer-events: none;
+            `;
+            
+            this.rainContainer.appendChild(drop);
+            
+            // Remove drop after animation
+            setTimeout(() => {
+                if (drop.parentNode) {
+                    drop.remove();
+                }
+            }, params.fallTime * 1000);
+        }
+    }
+
     showSleepTransition(durationMs, callback) {
         if (!this.terminal) return;
         

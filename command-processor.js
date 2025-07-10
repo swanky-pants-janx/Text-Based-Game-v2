@@ -27,7 +27,7 @@ class CommandProcessor {
                 response = 'Light mode enabled.';
                 break;
             case 'help':
-                response = 'Available commands: help, clear, look, move/walk/go [direction], sleep [hh:mm], devtool [enabled|disabled|damage|xp], sit, stand, lay, eat [item], drink [item], take [item/all/x and x and x], drop [item/all/x and x and x], attack [target], equip [weapon/armor], unequip [weapon], armor [status|equip|unequip], save, load';
+                response = 'Available commands: help, clear, look, look up, move/walk/go [direction], sleep [hh:mm], devtool [enabled|disabled|damage|xp|weather], sit, stand, lay, eat [item], drink [item], take [item/all/x and x and x], drop [item/all/x and x and x], attack [target], equip [weapon/armor], unequip [weapon], armor [status|equip|unequip], save, load';
                 break;
 
             case 'sleep':
@@ -44,6 +44,11 @@ class CommandProcessor {
 
             case 'look':
                 response = this.handleLook(argument);
+                break;
+
+            case 'look up':
+            case 'lookup':
+                response = this.handleLookUp();
                 break;
 
             case 'move':
@@ -145,6 +150,14 @@ class CommandProcessor {
                     const saveData = JSON.parse(decoded);
                     this.restoreGameState(saveData.gameState);
                     window.world = saveData.world;
+                    
+                    // Restore weather effects
+                    if (this.gameState.weather.isRaining) {
+                        this.visualEffects.startRainEffect(this.gameState.getRainIntensity());
+                    } else {
+                        this.visualEffects.stopRainEffect();
+                    }
+                    
                     this.uiManager.printToTerminal('Game loaded!');
                     this.uiManager.updateAllDisplays && this.uiManager.updateAllDisplays();
                     this.uiManager.updateStatsMenu && this.uiManager.updateStatsMenu();
@@ -225,6 +238,12 @@ class CommandProcessor {
             return this.handleDevtoolGive(itemName);
         }
         
+        // Handle "devtool weather [clear|rain]" command
+        if (argument.startsWith('weather ')) {
+            const weatherType = argument.slice(8).trim();
+            return this.handleDevtoolWeather(weatherType);
+        }
+        
         switch (argument) {
                     case 'enabled':
             this.mapRenderer.setDevtoolEnabled(true);
@@ -249,8 +268,10 @@ class CommandProcessor {
                 this.gameState.gainXP(50);
                 this.uiManager.updateStatsMenu && this.uiManager.updateStatsMenu();
                 return 'Devtool: 50 XP granted.';
+            case 'weather':
+                return 'Usage: devtool weather [clear|light|normal|heavy|storm]';
             default:
-                return 'Usage: devtool [enabled|disabled|damage|testarmor|armorstatus|xp|give <item name>]';
+                return 'Usage: devtool [enabled|disabled|damage|testarmor|armorstatus|xp|weather|give <item name>]';
         }
     }
 
@@ -309,6 +330,38 @@ class CommandProcessor {
         });
         
         return output.trim();
+    }
+
+    handleDevtoolWeather(weatherType) {
+        switch (weatherType.toLowerCase()) {
+            case 'clear':
+                this.gameState.setWeather(false);
+                this.visualEffects.stopRainEffect();
+                return 'Devtool: Weather set to clear.';
+            case 'light':
+            case 'rain':
+                this.gameState.setWeather(true, 'light');
+                this.visualEffects.startRainEffect('light');
+                return 'Devtool: Weather set to light rain.';
+            case 'normal':
+                this.gameState.setWeather(true, 'normal');
+                this.visualEffects.startRainEffect('normal');
+                return 'Devtool: Weather set to normal rain.';
+            case 'heavy':
+                this.gameState.setWeather(true, 'heavy');
+                this.visualEffects.startRainEffect('heavy');
+                return 'Devtool: Weather set to heavy rain.';
+            case 'storm':
+                this.gameState.setWeather(true, 'storm');
+                this.visualEffects.startRainEffect('storm');
+                return 'Devtool: Weather set to storm.';
+            default:
+                return 'Usage: devtool weather [clear|light|normal|heavy|storm]';
+        }
+    }
+
+    handleLookUp() {
+        return this.gameState.getWeatherDescription();
     }
 
     handleLook(argument) {
@@ -764,11 +817,13 @@ class CommandProcessor {
             playerState: gs.playerState,
             playerFacing: gs.playerFacing,
             equippedWeapon: gs.equippedWeapon,
+            equippedArmor: gs.equippedArmor,
             playerIsDead: gs.playerIsDead,
             inventory: gs.inventory,
             playerStats: gs.playerStats,
             xp: gs.xp,
-            level: gs.level
+            level: gs.level,
+            weather: gs.weather
         };
     }
 
@@ -781,11 +836,13 @@ class CommandProcessor {
         gs.playerState = data.playerState;
         gs.playerFacing = data.playerFacing;
         gs.equippedWeapon = data.equippedWeapon;
+        gs.equippedArmor = data.equippedArmor || { head_armor: null, torso_armor: null, leggings: null };
         gs.playerIsDead = data.playerIsDead;
         gs.inventory = data.inventory;
         gs.playerStats = data.playerStats;
         gs.xp = data.xp;
         gs.level = data.level;
+        gs.weather = data.weather || { isRaining: false, initialized: false };
     }
 }
 
