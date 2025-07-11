@@ -166,6 +166,7 @@ const foodKeys = allItemKeys.filter(k => items[k].type === 'food');
 const drinkKeys = allItemKeys.filter(k => items[k].type === 'drink');
 const weaponKeys = allItemKeys.filter(k => items[k].type === 'weapon');
 const armorKeys = allItemKeys.filter(k => items[k].type === 'armor');
+const otherKeys = allItemKeys.filter(k => items[k].type === 'other');
 const enemyKeys = Object.keys(enemies);
 const worldObjectKeys = Object.keys(worldObjects);
 
@@ -188,9 +189,10 @@ function generateWorld() {
             randomFromArray(drinkKeys, Math.floor(Math.random()*2)),
             randomFromArray(weaponKeys, Math.floor(Math.random()*2)),
             randomFromArray(armorKeys, Math.floor(Math.random()*2)),
+            randomFromArray(otherKeys, Math.floor(Math.random()*2)),
             randomFromArray(worldObjectKeys, Math.floor(Math.random()*2))
         ),
-        enemies: randomFromArray(enemyKeys, Math.floor(Math.random()*2)),
+        enemies: [], // No enemies in the starting room
         locked: false,
         visited: false,
         onEnter: null
@@ -230,9 +232,10 @@ function generateWorld() {
                 randomFromArray(drinkKeys, Math.floor(Math.random()*2)),
                 randomFromArray(weaponKeys, Math.floor(Math.random()*2)),
                 randomFromArray(armorKeys, Math.floor(Math.random()*2)),
+                randomFromArray(otherKeys, Math.floor(Math.random()*2)),
                 randomFromArray(worldObjectKeys, Math.floor(Math.random()*2))
             ),
-            enemies: randomFromArray(enemyKeys, Math.floor(Math.random()*2)),
+            enemies: Math.random() < 0.5 ? randomFromArray(enemyKeys, Math.floor(Math.random()*5) + 1) : [],
             locked: false,
             visited: false,
             onEnter: null

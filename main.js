@@ -72,7 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize game display
     uiManager.printToTerminal("Welcome to the Adventure Game! Type 'help' for commands.");
     uiManager.printToTerminal(world[gameState.playerLocation].description);
-    
+    // Print exits for the starting room
+    const startExits = Object.keys(world[gameState.playerLocation].exits || {});
+    if (startExits.length > 0) {
+        uiManager.printToTerminal(`Exits: ${startExits.join(', ')}`);
+    } else {
+        uiManager.printToTerminal('There are no visible exits.');
+    }
     // Show weather status at game start
     uiManager.printToTerminal(gameState.getWeatherDescription());
     

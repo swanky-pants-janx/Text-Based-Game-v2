@@ -27,6 +27,7 @@ class CommandProcessor {
         }
 
         let response = '';
+        let skipEnemyAttack = false;
 
         switch (command) {
             case 'darkmode':
@@ -38,82 +39,70 @@ class CommandProcessor {
                 response = 'Light mode enabled.';
                 break;
             case 'help':
-                response = 'Available commands: help, clear, look, look up, move/walk/go [direction], sleep [hh:mm], devtool [enabled|disabled|damage|xp|weather], sit, stand, lay, eat [item], drink [item], take [item/all/x and x and x], drop [item/all/x and x and x], attack [target], equip [weapon/armor], unequip [weapon], armor [equip|unequip], save, load';
+                response = 'Available commands: help, clear, look, look up, move/walk/go [direction], sleep [hh:mm], devtool [enabled|disabled|damage|xp|weather], sit, stand, lay, eat [item], drink [item], take [item/all/x and x and x], drop [item/all/x and x and x], attack [target], equip [weapon/armor], unequip [weapon], armor [equip|unequip], repair [armor], save, load';
                 break;
-
             case 'sleep':
                 response = this.handleSleep(argument);
+                skipEnemyAttack = true;
                 break;
-
             case 'devtool':
                 response = this.handleDevtool(argument);
                 break;
-
             case 'clear':
                 this.uiManager.terminalOutput.innerHTML = '';
+                skipEnemyAttack = true;
                 return;
-
             case 'look':
                 response = this.handleLook(argument);
                 break;
-
             case 'look up':
             case 'lookup':
                 response = this.handleLookUp();
                 break;
-
             case 'move':
             case 'walk':
             case 'go':
                 response = this.handleMove(argument);
                 break;
-
             case 'sit':
                 response = this.handleSit();
                 break;
-
             case 'stand':
                 response = this.handleStand();
                 break;
-
             case 'lay':
             case 'lie':
                 response = this.handleLay();
                 break;
-
             case 'eat':
                 response = this.handleEat(argument);
                 break;
-
             case 'drink':
                 response = this.handleDrink(argument);
                 break;
-
             case 'take':
             case 'pickup':
             case 'pick':
                 response = this.handleTake(argument);
                 break;
-
             case 'attack':
                 response = this.handleAttack(argument);
                 break;
-
             case 'equip':
                 response = this.handleEquip(argument);
                 break;
-
             case 'unequip':
                 response = this.handleUnequip(argument);
                 break;
             case 'armor':
                 response = this.handleArmor(argument);
                 break;
-
             case 'drop':
                 response = this.handleDrop(argument);
                 break;
-
+            case 'repair':
+                response = this.handleRepair(argument);
+                break;
             case 'save': {
                 // Save gameState and world
                 try {
@@ -121,15 +110,12 @@ class CommandProcessor {
                     console.log('Current player location:', this.gameState.playerLocation);
                     console.log('Items in current room:', window.world[this.gameState.playerLocation].items);
                     console.log('Enemies in current room:', window.world[this.gameState.playerLocation].enemies);
-                    
                     // Create a deep copy of the current world state, filtering out undefined values
                     const cleanWorld = JSON.parse(JSON.stringify(window.world, (key, value) => {
                         if (value === undefined) return null;
                         return value;
                     }));
-                    
                     console.log('Clean world state to be saved:', cleanWorld);
-                    
                     const saveData = {
                         gameState: this.serializeGameState(),
                         world: cleanWorld
@@ -161,14 +147,12 @@ class CommandProcessor {
                     const saveData = JSON.parse(decoded);
                     this.restoreGameState(saveData.gameState);
                     window.world = saveData.world;
-                    
                     // Restore weather effects
                     if (this.gameState.weather.isRaining) {
                         this.visualEffects.startRainEffect(this.gameState.getRainIntensity());
                     } else {
                         this.visualEffects.stopRainEffect();
                     }
-                    
                     this.uiManager.printToTerminal('Game loaded!');
                     this.uiManager.updateAllDisplays && this.uiManager.updateAllDisplays();
                     this.uiManager.updateStatsMenu && this.uiManager.updateStatsMenu();
@@ -179,12 +163,19 @@ class CommandProcessor {
                 }
                 break;
             }
-
             default:
                 response = `Command not found: ${commandText}`;
         }
 
         this.uiManager.printToTerminal(response);
+
+        // After most commands, let enemies attack (unless sleeping, clear, or dead)
+        if (!skipEnemyAttack && this.gameState.playerStats.health > 0) {
+            const attackMessages = this.combatSystem.maybeEnemiesAttackPlayer();
+            if (attackMessages && attackMessages.length > 0) {
+                attackMessages.forEach(msg => this.uiManager.printToTerminal(msg));
+            }
+        }
     }
 
     handleSleep(argument) {
@@ -456,8 +447,22 @@ class CommandProcessor {
                 const enemyNames = roomEnemies.map(enemy => enemy.displayName);
                 lines.push(`Enemies in room: ${enemyNames.join(', ')}`);
             }
+            // Exits
+            const exits = Object.keys(world[this.gameState.playerLocation].exits || {});
+            if (exits.length > 0) {
+                lines.push(`Exits: ${exits.join(', ')}`);
+            } else {
+                lines.push('There are no visible exits.');
+            }
             this.uiManager.updateCompassDisplay();
-            return lines.join('\n');
+            // ENEMY ATTACKS ON ROOM ENTRY (collect messages, print after desc/enemy list)
+            const attackMessages = this.combatSystem.maybeEnemiesAttackPlayer();
+            if (attackMessages && attackMessages.length > 0) {
+                lines.push(...attackMessages);
+            }
+            // Print all lines in order
+            lines.forEach(line => this.uiManager.printToTerminal(line));
+            return '';
         } else {
             return `You can't go that way.`;
         }
@@ -771,6 +776,77 @@ class CommandProcessor {
         }
         
         return "Failed to drop item.";
+    }
+
+    handleRepair(argument) {
+        if (!argument) {
+            return 'Repair what? Use "repair [armor name]" to repair armor.';
+        }
+
+        // Find repair tool in inventory
+        const repairToolKey = this.inventorySystem.findItemByArgument('repair tool');
+        const repairKitKey = this.inventorySystem.findItemByArgument('repair kit');
+        
+        let repairItemKey = null;
+        let repairAmount = 0;
+        
+        if (repairToolKey && this.gameState.hasItem(repairToolKey)) {
+            repairItemKey = repairToolKey;
+            repairAmount = items[repairToolKey].effect.repair;
+        } else if (repairKitKey && this.gameState.hasItem(repairKitKey)) {
+            repairItemKey = repairKitKey;
+            repairAmount = items[repairKitKey].effect.repair;
+        }
+        
+        if (!repairItemKey) {
+            return 'You need a repair tool or repair kit to repair armor.';
+        }
+
+        // Find the armor to repair
+        const armorToRepair = argument.toLowerCase();
+        const validSlots = ['head_armor', 'torso_armor', 'leggings'];
+        let targetSlot = null;
+        let targetArmor = null;
+
+        // Check equipped armor
+        for (const slot of validSlots) {
+            const armor = this.gameState.equippedArmor[slot];
+            if (armor) {
+                const armorItem = items[armor.itemKey];
+                if (armorItem && armorItem.name.toLowerCase().includes(armorToRepair)) {
+                    targetSlot = slot;
+                    targetArmor = armor;
+                    break;
+                }
+            }
+        }
+
+        if (!targetArmor) {
+            return `You don't have any ${argument} equipped.`;
+        }
+
+        // Check if armor needs repair
+        if (targetArmor.currentDurability >= targetArmor.maxDurability) {
+            return `${items[targetArmor.itemKey].name} is already at full durability.`;
+        }
+
+        // Repair the armor
+        const oldDurability = targetArmor.currentDurability;
+        targetArmor.currentDurability = Math.min(targetArmor.maxDurability, targetArmor.currentDurability + repairAmount);
+        const repairedAmount = targetArmor.currentDurability - oldDurability;
+
+        // Remove the repair item from inventory
+        this.gameState.removeFromInventory(repairItemKey, 1);
+        
+        // Update UI
+        this.uiManager.updateInventoryMenu();
+
+        // Play clink animation
+        if (this.visualEffects && typeof this.visualEffects.showClinkFx === 'function') {
+            this.visualEffects.showClinkFx();
+        }
+
+        return `You repair ${items[targetArmor.itemKey].name} with ${items[repairItemKey].name}. Durability restored by ${repairedAmount} points. (${targetArmor.currentDurability}/${targetArmor.maxDurability})`;
     }
 
     // Helper to serialize gameState (excluding methods)

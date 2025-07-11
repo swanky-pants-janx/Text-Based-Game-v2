@@ -216,6 +216,52 @@ class CombatSystem {
         };
     }
 
+    maybeEnemiesAttackPlayer() {
+        const enemiesHere = world[this.gameState.playerLocation].enemies || [];
+        let messages = [];
+        for (let i = 0; i < enemiesHere.length; i++) {
+            const enemy = enemiesHere[i];
+            if (enemy && Math.random() < 0.4) { // 40% chance to attack
+                // Use the same logic as enemy retaliation
+                const parts = Object.keys(this.gameState.playerStats.bodyParts);
+                const part = parts[Math.floor(Math.random() * parts.length)];
+                const enemyDamage = this.calculateEnemyDamage(enemy);
+                const armorResult = this.gameState.damageArmor(part, enemyDamage);
+                const actualDamage = enemyDamage - armorResult.armorAbsorbed;
+                if (armorResult.armorAbsorbed > 0) {
+                    this.visualEffects.showArmorDamageFx(armorResult.armorAbsorbed);
+                    this.visualEffects.showAttackShake(armorResult.armorAbsorbed);
+                }
+                this.gameState.playerStats.bodyParts[part].health = Math.max(0, this.gameState.playerStats.bodyParts[part].health - actualDamage);
+                this.gameState.recalculatePlayerHealth();
+                if (actualDamage > 0) {
+                    this.visualEffects.showPlayerDamageFx(actualDamage);
+                    this.visualEffects.showAttackShake(actualDamage);
+                }
+                let damageMessage = `The ${enemy.name} attacks your ${part} for ${enemyDamage} damage!`;
+                if (armorResult.armorAbsorbed > 0) {
+                    damageMessage += ` Your armor absorbs ${armorResult.armorAbsorbed} damage.`;
+                    if (armorResult.armorBroken) {
+                        damageMessage += ` Your ${armorResult.brokenArmorName} breaks!`;
+                    }
+                }
+                if (actualDamage > 0) {
+                    damageMessage += ` You take ${actualDamage} damage.`;
+                }
+                messages.push(damageMessage);
+            }
+        }
+        if (messages.length > 0) {
+            this.uiManager.updateBodyPartsMenu();
+            this.uiManager.updateStatusBars();
+            this.uiManager.updateInventoryMenu();
+            if (this.gameState.playerStats.health <= 0) {
+                messages.push('You have been defeated!');
+            }
+        }
+        return messages;
+    }
+
     initializeEnemies() {
         // After world and enemies are loaded
         for (const roomKey in world) {

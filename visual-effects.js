@@ -371,6 +371,48 @@ class VisualEffects {
             if (callback) callback();
         }, durationMs);
     }
+
+    showClinkFx() {
+        if (!this.terminal) return;
+        
+        let fx = document.createElement('div');
+        fx.className = 'clink-fx';
+        fx.textContent = '*clink*';
+        
+        // Randomize direction and rotation
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 80 + Math.random() * 80; // 80-160px
+        const x = Math.round(Math.cos(angle) * distance);
+        const y = Math.round(Math.sin(angle) * distance) - 180; // bias upward
+        const rotate = Math.round((Math.random() - 0.5) * 120); // -60deg to +60deg
+        
+        fx.style.setProperty('--clink-x', `${x}px`);
+        fx.style.setProperty('--clink-y', `${y}px`);
+        fx.style.setProperty('--clink-rotate', `${rotate}deg`);
+        
+        // Position relative to terminal
+        this.terminal.style.position = 'relative';
+        this.terminal.appendChild(fx);
+        
+        // Triple shake
+        const doShake = () => {
+            this.terminal.classList.remove('shake');
+            this.terminal.style.setProperty('--shake-x', '1px');
+            this.terminal.style.setProperty('--shake-y', '1px');
+            void this.terminal.offsetWidth;
+            this.terminal.classList.add('shake');
+            setTimeout(() => this.terminal.classList.remove('shake'), 120);
+        };
+        
+        doShake();
+        setTimeout(doShake, 180);
+        setTimeout(doShake, 360);
+        
+        setTimeout(() => {
+            fx.remove();
+            this.terminal.classList.remove('shake');
+        }, 2200);
+    }
 }
 
 function nudgeTerminal(direction) {

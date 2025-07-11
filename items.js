@@ -232,8 +232,22 @@ const items = {
         quality: 'good',
         maxDurability: 60,
         currentDurability: 60
+    },
+    
+    // Repair items
+    repair_kit: {
+        name: 'Repair Kit',
+        type: 'other',
+        description: 'A small kit containing basic tools and materials for simple repairs.',
+        effect: { repair: 25 }
+    },
+    repair_tool: {
+        name: 'Repair Tool',
+        type: 'other',
+        description: 'A specialized tool designed for repairing armor and equipment.',
+        effect: { repair: 100 }
     }
-}; 
+};
 
 // World Objects (static, non-pickup, non-movable, but can be looked at)
 const worldObjects = {

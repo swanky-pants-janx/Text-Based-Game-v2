@@ -151,3 +151,15 @@ Simply open `index.html` in any modern web browser.
 ---
 
 *Version 0.0.1 - A challenging survival adventure awaits! Weather the storm!*
+
+## Changelog
+
+### v.0.0.2
+- [x] Add so that rain/weather can happen randomly/can sleep it away
+- [x] Fixed location naming
+- [x] “Look up” command bug fix
+- [x] Added armour repair tool
+- [x] Removed XP from stats menu
+- [x] Fixed equipped armour not showing in correct category in inventory menu
+- [x] Enemy can randomly attack you now when you enter a room
+- [x] Multiple enemies can be in a room

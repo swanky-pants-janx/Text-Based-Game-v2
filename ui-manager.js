@@ -137,7 +137,18 @@ class UIManager {
             if (!categories[type]) categories[type] = [];
             categories[type].push(key);
         });
-        
+
+        // Add all equipped armor to the armor category (avoid duplicates)
+        const equippedArmor = Object.values(this.gameState.equippedArmor)
+            .filter(armor => armor && armor.itemKey)
+            .map(armor => armor.itemKey);
+        if (!categories['armor']) categories['armor'] = [];
+        equippedArmor.forEach(key => {
+            if (!categories['armor'].includes(key)) {
+                categories['armor'].push(key);
+            }
+        });
+
         // Define display order and names
         const typeOrder = [
             { type: 'food', label: 'Food' },
@@ -164,58 +175,26 @@ class UIManager {
                     const item = items[key];
                     const isInInventory = this.gameState.inventory[key] && this.gameState.inventory[key] > 0;
                     const isEquipped = type === 'weapon' && this.gameState.equippedWeapon === key;
-                    const isArmorEquipped = type === 'armor' && item && this.gameState.equippedArmor[item.slot] && 
-                        this.gameState.equippedArmor[item.slot].itemKey === key;
-                    
+                    let isArmorEquipped = false;
+                    let armor = null;
+                    if (type === 'armor' && item && item.slot) {
+                        armor = this.gameState.equippedArmor[item.slot];
+                        isArmorEquipped = armor && armor.itemKey === key;
+                    }
                     let text = `${item?.name || key}`;
-                    
                     if (isInInventory) {
                         text += ` (${this.gameState.inventory[key]})`;
                     }
-                    
                     if (isEquipped) {
                         text += ' (equipped)';
                     } else if (isArmorEquipped) {
-                        const armor = this.gameState.equippedArmor[item.slot];
                         text += ` (equipped - ${armor.currentDurability}/${armor.maxDurability})`;
                     }
-                    
                     li.textContent = text;
                     this.inventoryList.appendChild(li);
                 });
             }
         });
-        
-        // Add equipped armor that's not in inventory (separate section)
-        const equippedArmorItems = [];
-        Object.entries(this.gameState.equippedArmor).forEach(([slot, armor]) => {
-            if (armor && armor.itemKey) {
-                const isInInventory = this.gameState.inventory[armor.itemKey] && this.gameState.inventory[armor.itemKey] > 0;
-                if (!isInInventory) {
-                    equippedArmorItems.push({ slot, armor });
-                }
-            }
-        });
-        
-        if (equippedArmorItems.length > 0) {
-            if (!hasAnyItems) {
-                const header = document.createElement('li');
-                header.textContent = 'Armor';
-                header.style.fontWeight = 'bold';
-                header.style.marginTop = '0.5em';
-                this.inventoryList.appendChild(header);
-            }
-            
-            equippedArmorItems.forEach(({ slot, armor }) => {
-                const li = document.createElement('li');
-                const item = items[armor.itemKey];
-                const text = `${item?.name || armor.itemKey} (equipped - ${armor.currentDurability}/${armor.maxDurability})`;
-                li.textContent = text;
-                this.inventoryList.appendChild(li);
-            });
-            
-            hasAnyItems = true;
-        }
         
         if (!hasAnyItems) {
             const li = document.createElement('li');

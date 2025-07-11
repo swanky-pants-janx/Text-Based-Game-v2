@@ -817,3 +817,33 @@ body.darkmode .tooltiptext {
 .rain-drop {
     pointer-events: none;
 }
+
+.clink-fx {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #888;
+    pointer-events: none;
+    user-select: none;
+    z-index: 10;
+    transform: translate(-50%, -50%) rotate(var(--clink-rotate, 0deg));
+    animation: clink-float 2.2s cubic-bezier(0.4, 0.2, 0.2, 1);
+    will-change: transform, opacity;
+}
+
+@keyframes clink-float {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotate(var(--clink-rotate, 0deg));
+    }
+    60% {
+        opacity: 1;
+        transform: translate(calc(-50% + var(--clink-x, 0px)), calc(-50% + var(--clink-y, 0px))) scale(1.15) rotate(var(--clink-rotate, 0deg));
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--clink-x, 0px)), calc(-50% + var(--clink-y, 0px) - 40px)) scale(1.1) rotate(var(--clink-rotate, 0deg));
+    }
+}
